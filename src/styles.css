@@ -1,5 +1,9 @@
 /*@import "~bootstrap/dist/css/bootstrap.css";*/
 
+.background {
+    background: url(assets/backgrounds/movies-bg.png) no-repeat center center fixed;
+}
+
 .test {
     color: green;
 }

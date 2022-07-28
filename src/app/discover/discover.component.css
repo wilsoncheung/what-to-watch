@@ -29,3 +29,8 @@
 .carousel-control-next:hover {
     opacity: .7;
 }
+
+.swiper {
+    height: 400px;
+    width: 600px;
+}

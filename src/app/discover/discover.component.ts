@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MoviesService } from '../core/services/movies.service';
 import { environment } from '../../environments/environment';
 import { faFilm } from '@fortawesome/free-solid-svg-icons';
+import { SwiperOptions } from 'swiper'
 
 @Component({
   selector: 'discover',
@@ -13,6 +14,38 @@ export class DiscoverComponent implements OnInit {
   public env: any = environment;
   public movies: any;
 
+  config: SwiperOptions = {
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true
+    },
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev'
+    },
+    spaceBetween: 10,
+    slidesPerView: 6,
+    autoplay: {
+      delay: 3000,
+      disableOnInteraction: true
+    },
+    breakpoints: {
+      1024: {
+        slidesPerView: 6
+      },
+      500: {
+        slidesPerView: 3
+      },
+      400: {
+        slidesPerView: 2
+      },
+      300: {
+        slidesPerView: 1
+      }
+    },
+    loop: true
+  };
+
   constructor(private moviesService: MoviesService) { }
 
   ngOnInit(): void {
@@ -20,8 +53,7 @@ export class DiscoverComponent implements OnInit {
     this.moviesService.discover().subscribe((res: any) => {
       if (res != null) {
         console.log("DiscoverAPI Called:", res);
-        this.movies = res.results.slice(0, 6); // show 6 for now, implement pagination...
-        //this.movies = res.results;
+        this.movies = res.results;
       }
     });
   }

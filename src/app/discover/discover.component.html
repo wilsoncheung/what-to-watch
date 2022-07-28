@@ -1,52 +1,13 @@
-<!-- <div class="container my-5 rounded shadow trans-white-bg">
-    <h1 class="text-center py-1">
-        Discover <fa-icon [icon]="faFilm"></fa-icon>
-    </h1>
-    <div class="container pb-3">
-        <div class="row">
-            <div class="col-lg-2 col-sm-6 pb-3" *ngFor="let movie of movies">
-                <div class="card h-100">
-                    <img src="{{env.imgURL}}/w300/{{movie.poster_path}}" class="card-img-top">
-                    <div class="card-body">
-                        {{movie.title}}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
-
 <div class="container my-5 rounded shadow trans-white-bg">
     <h1 class="text-center py-1">
         Discover <fa-icon [icon]="faFilm"></fa-icon>
     </h1>
-    <div id="discover" class="carousel slide" data-ride="carousel">
-        <!-- <ol class="carousel-indicators">
-            <li data-target="#discover" data-slide-to="0" class="active"></li>
-            <li data-target="#discover" data-slide-to="1"></li>
-            <li data-target="#discover" data-slide-to="2"></li>
-        </ol> -->
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <div class="row">
-                    <div class="col-lg-2 col-sm-6 pb-3" *ngFor="let movie of movies">
-                        <div class="card h-100">
-                            <img src="{{env.imgURL}}/w300/{{movie.poster_path}}" class="card-img-top">
-                            <div class="card-body">
-                                {{movie.title}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <swiper class="pb-3" [config]="config">
+        <div class="swiper-wrapper">
+            <img class="swiper-slide" *ngFor="let movie of movies" src="{{env.imgURL}}/w300/{{movie.poster_path}}" />
         </div>
-        <a class="carousel-control-prev" href="#discover" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-        </a>
-        <a class="carousel-control-next" href="#discover" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-        </a>
-    </div>
+        <div class="swiper-pagination"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+    </swiper>
 </div>

@@ -7,12 +7,13 @@ import { MoviesService } from '../app/core/services/movies.service';
 import { AppComponent } from './app.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DiscoverComponent } from './discover/discover.component';
-
+import { SearchComponent } from './search/search.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    DiscoverComponent
+    DiscoverComponent,
+    SearchComponent
   ],
   imports: [
     BrowserModule,

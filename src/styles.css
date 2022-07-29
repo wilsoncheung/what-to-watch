@@ -1,12 +1,12 @@
 /*@import "~bootstrap/dist/css/bootstrap.css";*/
 
 .background {
-    background-image: url('assets/backgrounds/movies-bg.png');
+    background-image: url('assets/backgrounds/galaxy-bg.jpg');
     background-attachment: fixed;
     background-repeat: no-repeat;
     background-size: cover;
 }
 
-.test {
-    color: green;
+.trans-white-bg {
+    background-color: rgba(255 255 255 / 85%);
 }

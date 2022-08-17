@@ -2,7 +2,7 @@
     <h1 class="text-center py-1">
         Discover <fa-icon [icon]="faFilm"></fa-icon>
     </h1>
-    <swiper class="pb-3" [config]="config">
+    <swiper class="pb-3" [config]="config" *ngIf="isDataLoaded">
         <div class="swiper-wrapper">
             <img class="swiper-slide" *ngFor="let movie of movies" src="{{env.imgURL}}/w300/{{movie.poster_path}}" />
         </div>

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MoviesService } from '../core/services/movies.service';
 import { environment } from '../../environments/environment';
 import { faFilm } from '@fortawesome/free-solid-svg-icons';
-import { SwiperOptions } from 'swiper'
+import { SwiperOptions } from 'swiper';
 
 @Component({
   selector: 'discover',
@@ -13,6 +13,7 @@ export class DiscoverComponent implements OnInit {
   faFilm = faFilm;
   public env: any = environment;
   public movies: any;
+  public isDataLoaded: boolean = false;
 
   config: SwiperOptions = {
     pagination: {
@@ -25,9 +26,10 @@ export class DiscoverComponent implements OnInit {
     },
     spaceBetween: 10,
     slidesPerView: 6,
+    loop: true,
     autoplay: {
       delay: 3000,
-      disableOnInteraction: true
+      disableOnInteraction: false
     },
     breakpoints: {
       1024: {
@@ -43,7 +45,6 @@ export class DiscoverComponent implements OnInit {
         slidesPerView: 1
       }
     },
-    loop: true
   };
 
   constructor(private moviesService: MoviesService) { }
@@ -52,6 +53,7 @@ export class DiscoverComponent implements OnInit {
 
     this.moviesService.discover().subscribe((res: any) => {
       if (res != null) {
+        this.isDataLoaded = true; // has to set this flag for swiper loop to work! - prevent swiper to be loaded before slides are ready.
         console.log("DiscoverAPI Called:", res);
         this.movies = res.results;
       }

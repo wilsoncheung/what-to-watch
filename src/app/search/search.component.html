@@ -1,1 +1,149 @@
-<p>search works!</p>
+<div class="container my-5 rounded shadow trans-white-bg">
+    <fieldset>
+        <div class="row mb-0">
+            <div class="input-field col">
+                <!--Work on discover component click to search option...-->
+                <i class="material-icons prefix">search</i>
+                <input id="typeahead-http" type="text" class="form-control" [class.is-invalid]="searchFailed"
+                    [(ngModel)]="model" [ngbTypeahead]="search" placeholder="Search movie" placement="bottom-start"
+                    [resultFormatter]="formatter" [inputFormatter]="formatter" (selectItem)="selectMovie($event)" />
+                <small *ngIf="searching" class="form-text text-muted">searching...</small>
+                <div class="invalid-feedback" *ngIf="searchFailed">Sorry, suggestions could not be loaded.</div>
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="row justify-content-center" *ngIf="movieDetails != null">
+        <div class="col-lg-3">
+            <div class="card mt-0">
+                <div class="card-image">
+                    <img src="{{env.imgURL}}/w200/{{movieDetails.poster_path}}">
+                    <span class="btn-floating halfway-fab waves-effect waves-light red text-center">
+                        <strong>{{movieDetails.vote_average | number: '1.1-1'}}</strong>
+                    </span>
+                </div>
+                <div class="card-content">
+                    <span class="card-title fw-bold">{{movieDetails.title}}</span>
+                    <p class="card-text d-flex">
+                        <i class="material-icons">today</i>
+                        <span class="h5">{{formatDate(movieDetails.release_date)}}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="video-container">
+                <!--yt video doesnt pause when clicked on-->
+                <iframe width="375" height="210" [src]="movieDetails.trailerURL | safe:'resourceUrl'" frameborder="0"
+                    allowfullscreen></iframe>
+            </div>
+            <div class="movie-summary mt-2">
+                <h1>Summary</h1>
+                <p>{{movieDetails.overview}}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" *ngIf="recommendations && recommendations.length > 0">
+        <hr>
+        <div class="row">
+            <div class="col">
+            </div>
+            <div class="col">
+                <h1 class="text-center">
+                    <u>Recommendations</u>
+                </h1>
+            </div>
+            <div class="col d-flex justify-content-end align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <fa-icon [icon]="faSort"></fa-icon> Sort By
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><a class="dropdown-item active" href="#">Action</a></li>
+                        <li><a class="dropdown-item" href="#">Another action</a></li>
+                        <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="#">Separated link</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 d-flex align-items-stretch" *ngFor="let similarMovie of recommendations">
+            <div class="card mb-3">
+                <div class="row">
+                    <div class="col-md-6 my-auto">
+                        <img *ngIf="similarMovie.poster_path; else elseNoPoster"
+                            src="{{env.imgURL}}/w200/{{similarMovie.poster_path}}" class="img-fluid rounded-start"
+                            alt="...">
+                        <!--rating icon goes bottom in mobile view-->
+                        <span class="btn-floating halfway-fab waves-effect waves-light red text-center sim-rating">
+                            <strong>{{similarMovie.vote_average | number: '1.1-1'}}</strong>
+                        </span>
+                        <ng-template #elseNoPoster>
+                            <div class="border-box center-align">
+                                <p class="bold-text">(No Poster)</p>
+                            </div>
+                        </ng-template>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-body scroll">
+                            <h5 class="card-title fw-bold">{{similarMovie.title}}</h5>
+                            <p class="card-text d-flex mb-0">
+                                <i class="material-icons">today</i>
+                                <span class="h5">{{formatDate(similarMovie.release_date)}}</span>
+                            </p>
+                            <div class="d-flex">
+                                <!--Some trailers comes back blank... how to disable this beforehand?-->
+                                <a class="card-link link-danger pointer" (click)="loadTrailer(similarMovie.id)"
+                                    title="Trailer">
+                                    <i class="bi bi-youtube" style="font-size: 2rem;"></i>
+                                </a>
+                                <a href="https://wilsoncheung.github.io/movies-app/#/movie/{{similarMovie.id}}"
+                                    class="card-link link-warning" title="More Details" target="_blank">
+                                    <i class="bi bi-link" style="font-size: 2rem;"></i>
+                                </a>
+                            </div>
+                            <p class="card-text">{{similarMovie.overview}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div #testModal class="modal fade" id="trailerModal" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="trailerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-0">
+                <div class="modal-body">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        (click)="closeModal()"></button>
+                    <div class="ratio ratio-16x9">
+                        <iframe class="embed-responsive-item" src="" id="recommend-trailer" allowscriptaccess="always"
+                            allow="autoplay"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="trailerUnavailable" tabindex="-1" aria-labelledby="trailerUnavailableLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <h3>TRAILER UNAVAILABLE!</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <pre>Model: {{ model | json }}</pre>
+    <pre>Movie Details: {{ movieDetails | json }}</pre>
+    <pre>Recommendations: {{ recommendations | json }}</pre> -->
+
+</div>

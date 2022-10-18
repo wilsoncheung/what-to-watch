@@ -10,12 +10,16 @@ import { AppComponent } from './app.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DiscoverComponent } from './discover/discover.component';
 import { SearchComponent } from './search/search.component';
+import { SafePipe } from './safe.pipe';
+import { FooterComponent } from './footer/footer.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DiscoverComponent,
-    SearchComponent
+    SearchComponent,
+    SafePipe,
+    FooterComponent
   ],
   imports: [
     BrowserModule,

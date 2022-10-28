@@ -1,19 +1,20 @@
 <div class="container my-5 rounded shadow trans-white-bg">
-    <fieldset>
+    <fieldset id="search-bar">
         <div class="row mb-0">
             <div class="input-field col">
                 <!--Work on discover component click to search option...-->
                 <i class="material-icons prefix">search</i>
                 <input id="typeahead-http" type="text" class="form-control" [class.is-invalid]="searchFailed"
                     [(ngModel)]="model" [ngbTypeahead]="search" placeholder="Search movie" placement="bottom-start"
-                    [resultFormatter]="formatter" [inputFormatter]="formatter" (selectItem)="selectMovie($event)" />
+                    [resultFormatter]="formatter" [inputFormatter]="formatter"
+                    (selectItem)="selectMovie($event.item.id)" />
                 <small *ngIf="searching" class="form-text text-muted">searching...</small>
                 <div class="invalid-feedback" *ngIf="searchFailed">Sorry, suggestions could not be loaded.</div>
             </div>
         </div>
     </fieldset>
 
-    <div class="row justify-content-center" *ngIf="movieDetails != null">
+    <div id="movie-details" class="row justify-content-center" *ngIf="movieDetails != null">
         <div class="col-lg-3">
             <div class="card mt-0">
                 <div class="card-image">
@@ -32,11 +33,16 @@
             </div>
         </div>
         <div class="col-lg-6">
-            <div class="video-container">
+            <div class="video-container" *ngIf="movieDetails.trailerURL; else elseNoTrailer">
                 <!--yt video doesnt pause when clicked on-->
                 <iframe width="375" height="210" [src]="movieDetails.trailerURL | safe:'resourceUrl'" frameborder="0"
                     allowfullscreen></iframe>
             </div>
+            <ng-template #elseNoTrailer>
+                <div class="border-box center-align my-5">
+                    <p class="display-1">(No Trailer)</p>
+                </div>
+            </ng-template>
             <div class="movie-summary mt-2">
                 <h1>Summary</h1>
                 <p>{{movieDetails.overview}}</p>
@@ -44,6 +50,7 @@
         </div>
     </div>
 
+    <div id="movie-list"></div>
     <div class="row" *ngIf="recommendations && recommendations.length > 0">
         <hr>
         <div class="row">
@@ -77,8 +84,8 @@
                 <div class="row">
                     <div class="col-md-6 my-auto">
                         <img *ngIf="similarMovie.poster_path; else elseNoPoster"
-                            src="{{env.imgURL}}/w200/{{similarMovie.poster_path}}" class="img-fluid rounded-start"
-                            alt="...">
+                            src="{{env.imgURL}}/w200/{{similarMovie.poster_path}}"
+                            class="img-fluid rounded-start pointer" alt="..." (click)="selectMovie(similarMovie.id)">
                         <!--rating icon goes bottom in mobile view-->
                         <span class="btn-floating halfway-fab waves-effect waves-light red text-center sim-rating">
                             <strong>{{similarMovie.vote_average | number: '1.1-1'}}</strong>

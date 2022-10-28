@@ -6,6 +6,7 @@ import { SwiperOptions } from 'swiper';
 
 @Component({
   selector: 'discover',
+  providers: [],
   templateUrl: './discover.component.html',
   styleUrls: ['./discover.component.css']
 })
@@ -57,6 +58,20 @@ export class DiscoverComponent implements OnInit {
         console.log("DiscoverAPI Called:", res);
         this.movies = res.results;
       }
+    });
+  }
+
+  public loadRecommendations(item: any) {
+    // document.getElementById('search-bar')?.scrollIntoView({
+    //   behavior: 'smooth'
+    // });
+
+    let event = {
+      item: { ...item.movie }
+    };
+
+    this.moviesService.refreshMovieAndSimilar(event.item.id).subscribe((res: any) => {
+      console.log("Discover: ", res);
     });
   }
 

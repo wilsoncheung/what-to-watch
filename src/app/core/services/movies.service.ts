@@ -1,8 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
-import { of } from 'rxjs';
+import { forkJoin, Observable, of, Subject, ReplaySubject } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, tap, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+
+
+export interface MovieAndSimilarData {
+  movieDetails: any,
+  similarMovies: any
+}
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +19,8 @@ export class MoviesService {
     .set('api-key', environment.apiKey);
 
   private httpOptions = { headers: this._headers };
+
+  private _data$ = new ReplaySubject<MovieAndSimilarData>();
 
   constructor(private http: HttpClient) { }
 
@@ -43,6 +51,17 @@ export class MoviesService {
       .pipe(map(response => response.results));
   }
 
+  public multiSearch(query: string) {
+    //let headers = this._headers;
+
+    if (query === '') {
+      return of([]);
+    }
+
+    return this.http.get<any>(`${environment.baseURL}search/multi?api_key=${environment.apiKey}&language=en-US&query=${query}&page=1&include_adult=false`, this.httpOptions)
+      .pipe(map(response => response.results));
+  }
+
   public movieDetails(id: number) {
     //let headers = this._headers;
 
@@ -61,6 +80,48 @@ export class MoviesService {
     }
 
     return this.http.get<any>(`${environment.baseURL}movie/${id}/recommendations?api_key=${environment.apiKey}&language=en-US&page=1`, this.httpOptions)
+      .pipe(map(resp => resp.results));
+  }
+
+  public movieAndRecommendations(id: number): Observable<any> {
+    if (typeof id != "number") {
+      return of([]);
+    }
+
+    let movieDetailsAPI = this.movieDetails(id);
+    let recommendationsAPI = this.similar(id);
+
+    return forkJoin([movieDetailsAPI, recommendationsAPI]);
+  }
+
+  public refreshMovieAndSimilar(id: number): Observable<any> {
+
+    let movieDetailsAPI = this.movieDetails(id);
+    let recommendationsAPI = this.similar(id);
+
+    return forkJoin([movieDetailsAPI, recommendationsAPI]).pipe(
+      tap(response => {
+        // notify all subscribers of new data
+        this._data$.next({
+          movieDetails: response[0],
+          similarMovies: response[1]
+        });
+      })
+    );
+  }
+
+  public getMovieAndRecomendations(): Observable<MovieAndSimilarData> {
+    return this._data$.asObservable();
+  }
+
+  public similar(id: number) {
+    //let headers = this._headers;
+
+    if (typeof id != "number") {
+      return of([]);
+    }
+
+    return this.http.get<any>(`${environment.baseURL}movie/${id}/similar?api_key=${environment.apiKey}&language=en-US&page=1`, this.httpOptions)
       .pipe(map(resp => resp.results));
   }
 

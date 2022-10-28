@@ -4,7 +4,9 @@
     </h1>
     <swiper class="pb-3" [config]="config" *ngIf="isDataLoaded">
         <div class="swiper-wrapper">
-            <img class="swiper-slide" *ngFor="let movie of movies" src="{{env.imgURL}}/w300/{{movie.poster_path}}" />
+            <img class="swiper-slide pointer" *ngFor="let movie of movies"
+                src="{{env.imgURL}}/w300/{{movie.poster_path}}" (click)="loadRecommendations({movie})"
+                onclick="location.href='#search-bar'" />
         </div>
         <div class="swiper-pagination"></div>
         <div class="swiper-button-next"></div>

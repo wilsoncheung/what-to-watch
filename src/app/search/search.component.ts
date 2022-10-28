@@ -1,8 +1,8 @@
-import { Component, Injectable, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, Injectable, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { forkJoin, Observable, of, OperatorFunction } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, tap, switchMap } from 'rxjs/operators';
-import { MoviesService } from '../core/services/movies.service';
+import { forkJoin, Observable, of, OperatorFunction, Subject } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil } from 'rxjs/operators';
+import { MovieAndSimilarData, MoviesService } from '../core/services/movies.service';
 import { environment } from '../../environments/environment';
 import { SlicePipe } from '@angular/common';
 import * as moment from 'moment';
@@ -21,26 +21,26 @@ const PARAMS = new HttpParams({
   }
 });
 
-@Injectable()
-export class WikipediaService {
-  constructor(private http: HttpClient) { }
+// @Injectable()
+// export class WikipediaService {
+//   constructor(private http: HttpClient) { }
 
-  search(term: string) {
-    if (term === '') {
-      return of([]);
-    }
+//   search(term: string) {
+//     if (term === '') {
+//       return of([]);
+//     }
 
-    return this.http
-      .get<[any, string[]]>(WIKI_URL, { params: PARAMS.set('search', term) }).pipe(
-        map(response => response[1])
-      );
-  }
-}
+//     return this.http
+//       .get<[any, string[]]>(WIKI_URL, { params: PARAMS.set('search', term) }).pipe(
+//         map(response => response[1])
+//       );
+//   }
+// }
 
 @Component({
   selector: 'search',
   templateUrl: './search.component.html',
-  providers: [WikipediaService],
+  // providers: [WikipediaService],
   styleUrls: ['./search.component.css']
 })
 
@@ -63,10 +63,27 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   public formModal: any;
 
-  constructor(private moviesService: MoviesService, private _service: WikipediaService, private http: HttpClient, private elRef: ElementRef) { }
+  constructor(private moviesService: MoviesService, private http: HttpClient, private elRef: ElementRef) { } //private _service: WikipediaService,
+
+  private destroyed$ = new Subject();
+
+  // public data!: MovieAndSimilarData;
 
   ngOnInit(): void {
+    // all components that want to receive data will subscribe to one method
+    this.moviesService.getMovieAndRecomendations().pipe(
+      // it is now important to unsubscribe from the subject
+      takeUntil(this.destroyed$)
+    ).subscribe(res => {
+      console.log("Latest:", res); // the latest data
 
+      this.movieDetails = res.movieDetails;
+      this.movieDetails.trailerURL = res.movieDetails.videos.results[0] != null ? this.moviesService.getYoutubeUrl(res.movieDetails.videos.results[0].key) : null;
+
+      this.recommendations = res.similarMovies;
+    });
+
+    this.scrollMonitor();
   }
 
   ngAfterViewInit(): void {
@@ -84,6 +101,45 @@ export class SearchComponent implements OnInit, AfterViewInit {
     });
 
     console.log("viewChild modal:", this.testModal);
+  }
+
+  ngOnDestroy() {
+    this.destroyed$.next;
+    this.destroyed$.complete;
+  }
+
+  // For observing first ngIf appearance.
+  private scrollMonitor() {
+    let element = document.getElementById('movie-details');
+    if (element) {
+      this.scrollToSearchBar();
+    }
+
+    let observer = new MutationObserver(mutations => {
+      mutations.forEach((mutation) => {
+        let nodes = Array.from(mutation.addedNodes);
+        for (var node of nodes) {
+          if (node.contains(document.getElementById('movie-details'))) {
+            this.scrollToSearchBar();
+            observer.disconnect();
+            return;
+          }
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+
+    console.log('SCROLLED!')
+  }
+
+  private scrollToSearchBar() {
+    document.getElementById('search-bar')?.scrollIntoView({
+      behavior: 'smooth'
+    });
   }
 
   public closeModal() {
@@ -116,34 +172,19 @@ export class SearchComponent implements OnInit, AfterViewInit {
       tap(() => this.searching = false)
     );
 
-  public selectMovie(event: any) {
-    console.log("Select Movie Event:", event);
+  public selectMovie(id: number) {
+    this.moviesService.refreshMovieAndSimilar(id).subscribe((res: any) => {
+      console.log("Search: ", res);
+      this.movieDetails = res[0];
+      this.movieDetails.trailerURL = this.movieDetails.videos.results[0] != null ? this.moviesService.getYoutubeUrl(this.movieDetails.videos.results[0].key) : null;
 
-    this.moviesService.movieDetails(event.item.id).subscribe((res: any) => {
-      if (res != null) {
-        this.movieDetails = res;
-        this.movieDetails.trailerURL = this.moviesService.getYoutubeUrl(res.videos.results[0].key);
-      }
+      this.recommendations = res[1];
+
+      document.getElementById('search-bar')?.scrollIntoView({
+        behavior: 'smooth'
+      });
+
     });
-
-    this.moviesService.recommendations(event.item.id).subscribe((res: any) => {
-      if (res != null) {
-        this.recommendations = res;
-        console.log('Recommendations:', this.recommendations);
-      }
-    });
-
-    // change to single api call for trailer instead...!!!
-    // this.recommendations = this.moviesService.recommendations(event.item.id).pipe(
-    //   switchMap(values => {
-    //     console.log("values:", values);
-    //     return forkJoin(
-    //       values.map((value: any) => this.moviesService.getTrailers(value['id']))).pipe(
-    //         map((trailers: any) => trailers.map((trailer: any, index: string | number) => Object.assign(values[index], { trailer: trailer }))
-    //         )
-    //       );
-    //   })
-    // );
   }
 
   public loadTrailer(movieId: number) {

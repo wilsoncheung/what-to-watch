@@ -55,23 +55,32 @@ export class DiscoverComponent implements OnInit {
     this.moviesService.discover().subscribe((res: any) => {
       if (res != null) {
         this.isDataLoaded = true; // has to set this flag for swiper loop to work! - prevent swiper to be loaded before slides are ready.
-        console.log("DiscoverAPI Called:", res);
+        //console.log("DiscoverAPI Called:", res);
         this.movies = res.results;
       }
     });
   }
 
+  private scrollToSearchBar() {
+    console.log("Scroll from Discover component!");
+
+    document.getElementById('search-bar')?.scrollIntoView({
+      behavior: 'smooth'
+    });
+  }
+
   public loadRecommendations(item: any) {
-    // document.getElementById('search-bar')?.scrollIntoView({
-    //   behavior: 'smooth'
-    // });
+    let element = document.getElementById('search-bar');
+    if (element) {
+      this.scrollToSearchBar();
+    }
 
     let event = {
       item: { ...item.movie }
     };
 
     this.moviesService.refreshMovieAndSimilar(event.item.id).subscribe((res: any) => {
-      console.log("Discover: ", res);
+      //console.log("Discover: ", res);
     });
   }
 

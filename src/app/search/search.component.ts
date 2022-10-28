@@ -75,7 +75,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       // it is now important to unsubscribe from the subject
       takeUntil(this.destroyed$)
     ).subscribe(res => {
-      console.log("Latest:", res); // the latest data
+      //console.log("Latest:", res); // the latest data
 
       this.movieDetails = res.movieDetails;
       this.movieDetails.trailerURL = res.movieDetails.videos.results[0] != null ? this.moviesService.getYoutubeUrl(res.movieDetails.videos.results[0].key) : null;
@@ -87,20 +87,20 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    console.log("afterviewintit elref nativeElement: ", this.elRef.nativeElement);
+    //console.log("afterviewintit elref nativeElement: ", this.elRef.nativeElement);
 
     // add modal listen events here..
     // *Problem: The reason why this came out 'undefined' was because the modal was in the *ngIf, DOM was removed...
     let modal = document.getElementById("trailerModal");
 
-    console.log('Modal: ', modal);
+    //console.log('Modal: ', modal);
 
     modal?.addEventListener('hidden.bs.modal', (event: any) => {
-      console.log('modal close', event);
+      //console.log('modal close', event);
       document.getElementById("recommend-trailer")?.setAttribute('src', '');
     });
 
-    console.log("viewChild modal:", this.testModal);
+    //console.log("viewChild modal:", this.testModal);
   }
 
   ngOnDestroy() {
@@ -133,17 +133,18 @@ export class SearchComponent implements OnInit, AfterViewInit {
       subtree: true
     });
 
-    console.log('SCROLLED!')
+    console.log("Initiated Scroll monitor!")
   }
 
   private scrollToSearchBar() {
+    console.log("Scroll from Search component!")
     document.getElementById('search-bar')?.scrollIntoView({
       behavior: 'smooth'
     });
   }
 
   public closeModal() {
-    console.log('modal close');
+    //console.log('modal close');
     document.getElementById("recommend-trailer")?.setAttribute('src', '');
   }
 
@@ -174,7 +175,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   public selectMovie(id: number) {
     this.moviesService.refreshMovieAndSimilar(id).subscribe((res: any) => {
-      console.log("Search: ", res);
+      //console.log("Search: ", res);
       this.movieDetails = res[0];
       this.movieDetails.trailerURL = this.movieDetails.videos.results[0] != null ? this.moviesService.getYoutubeUrl(this.movieDetails.videos.results[0].key) : null;
 

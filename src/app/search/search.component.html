@@ -2,7 +2,6 @@
     <fieldset id="search-bar">
         <div class="row mb-0">
             <div class="input-field col">
-                <!--Work on discover component click to search option...-->
                 <i class="material-icons prefix">search</i>
                 <input id="typeahead-http" type="text" class="form-control" [class.is-invalid]="searchFailed"
                     [(ngModel)]="model" [ngbTypeahead]="search" placeholder="Search movie" placement="bottom-start"
@@ -34,7 +33,6 @@
         </div>
         <div class="col-lg-6">
             <div class="video-container" *ngIf="movieDetails.trailerURL; else elseNoTrailer">
-                <!--yt video doesnt pause when clicked on-->
                 <iframe width="375" height="210" [src]="movieDetails.trailerURL | safe:'resourceUrl'" frameborder="0"
                     allowfullscreen></iframe>
             </div>
@@ -54,35 +52,36 @@
     <div class="row" *ngIf="recommendations && recommendations.length > 0">
         <hr>
         <div class="row">
-            <!-- <div class="col">
-            </div> -->
+            <div class="col">
+            </div>
             <div class="col justify-content-center">
                 <h1 class="text-center">
                     <u>Recommendations</u>
                 </h1>
             </div>
-            <!--<div class="col d-flex justify-content-end align-items-center"> 
+            <div class="col d-flex justify-content-end align-items-center">
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
                         <fa-icon [icon]="faSort"></fa-icon> Sort By
                     </button>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item active" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        <li>
+                        <li><a class="dropdown-item pointer" (click)="sortBy('vote_average')">Rating</a></li>
+                        <li><a class="dropdown-item pointer" (click)="sortBy('release_date')">Release Date</a></li>
+                        <li><a class="dropdown-item pointer" (click)="sortBy('popularity')">Popular</a></li>
+                        <li><a class="dropdown-item pointer" (click)="sortBy('vote_count')">Vote Count</a></li>
+                        <!-- <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="#">Separated link</a></li>
+                        <li><a class="dropdown-item" href="#">Separated link</a></li> -->
                     </ul>
                 </div>
-            </div>-->
+            </div>
         </div>
         <div class="col-lg-4 d-flex align-items-stretch" *ngFor="let similarMovie of recommendations">
             <div class="card mb-3">
                 <div class="row">
-                    <div class="col-md-6 my-auto">
+                    <div class="col-md-6 my-auto text-center">
                         <img *ngIf="similarMovie.poster_path; else elseNoPoster"
                             src="{{env.imgURL}}/w200/{{similarMovie.poster_path}}"
                             class="img-fluid rounded-start pointer" alt="..." (click)="selectMovie(similarMovie.id)">

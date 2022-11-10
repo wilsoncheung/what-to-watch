@@ -12,14 +12,14 @@ import { faSort } from '@fortawesome/free-solid-svg-icons';
 declare var window: any;
 declare var $: any;
 
-const WIKI_URL = 'https://en.wikipedia.org/w/api.php';
-const PARAMS = new HttpParams({
-  fromObject: {
-    action: 'opensearch',
-    format: 'json',
-    origin: '*'
-  }
-});
+// const WIKI_URL = 'https://en.wikipedia.org/w/api.php';
+// const PARAMS = new HttpParams({
+//   fromObject: {
+//     action: 'opensearch',
+//     format: 'json',
+//     origin: '*'
+//   }
+// });
 
 // @Injectable()
 // export class WikipediaService {
@@ -50,8 +50,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   public env: any = environment;
   public model: any;
-  public searching = false;
-  public searchFailed = false;
+  public searching: boolean = false;
+  public searchFailed: boolean = false;
   public genres: any;
   public movieDetails: any;
   public recommendations: any;
@@ -66,6 +66,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
   constructor(private moviesService: MoviesService, private http: HttpClient, private elRef: ElementRef) { } //private _service: WikipediaService,
 
   private destroyed$ = new Subject();
+  private ascendingOrder: boolean = false;
+  private lastSortedByField: string = '';
 
   // public data!: MovieAndSimilarData;
 
@@ -136,7 +138,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     console.log("Initiated Scroll monitor!")
   }
 
-  private scrollToSearchBar() {
+  public scrollToSearchBar() {
     console.log("Scroll from Search component!")
     document.getElementById('search-bar')?.scrollIntoView({
       behavior: 'smooth'
@@ -178,13 +180,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
       //console.log("Search: ", res);
       this.movieDetails = res[0];
       this.movieDetails.trailerURL = this.movieDetails.videos.results[0] != null ? this.moviesService.getYoutubeUrl(this.movieDetails.videos.results[0].key) : null;
-
       this.recommendations = res[1];
 
-      document.getElementById('search-bar')?.scrollIntoView({
-        behavior: 'smooth'
-      });
-
+      this.scrollToSearchBar();
     });
   }
 
@@ -204,5 +202,33 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   public formatDate(date: string) {
     return moment(date).format('MM/DD/YYYY');
+  }
+
+  public sortBy(field: string) {
+    if (this.lastSortedByField === field) {
+      this.ascendingOrder = !this.ascendingOrder;
+    }
+    else {
+      this.lastSortedByField = field;
+      this.ascendingOrder = false;
+    }
+
+    if (this.ascendingOrder) {
+      this.recommendations = this.recommendations.sort((a: { [x: string]: number; }, b: { [x: string]: number; }) => {
+        if (a[field] < b[field])
+          return -1;
+        if (a[field] > b[field])
+          return 1;
+        return 0;
+      });
+    } else {
+      this.recommendations = this.recommendations.sort((a: { [x: string]: number; }, b: { [x: string]: number; }) => {
+        if (a[field] < b[field])
+          return 1;
+        if (a[field] > b[field])
+          return -1;
+        return 0;
+      });
+    }
   }
 }
